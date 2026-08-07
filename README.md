@@ -14,26 +14,30 @@ A 2D platformer built with Python and **Pygame** — a spiritual remake of the c
 - Dynamic background that scales with level size
 
 ## 📁 Project Structure
-├── main.py # Entry point, main menu and level select menu
-├── game.py # Core game loop and level logic
-├── player.py # Player class (physics, collisions, lives)
-├── enemy.py # Enemy classes: static and moving
-├── coin.py # Coin class with customizable dimensions
-├── checkpoint.py # Checkpoint class
-├── button.py # UI buttons (text, image, background-image)
-├── level_manager.py # Loads levels from files or built-in maps
-├── game_constants.py # Game constants, colors, image loading
-├── levels/ # (optional) level map .txt files
-└── img/ # Sprites and UI images
+
+```
+.
+├── main.py             # Entry point, main menu and level select menu
+├── game.py             # Core game loop and level logic
+├── player.py           # Player class (physics, collisions, lives)
+├── enemy.py            # Enemy classes: static and moving
+├── coin.py             # Coin class with customizable dimensions
+├── checkpoint.py       # Checkpoint class
+├── button.py           # UI buttons (text, image, background-image)
+├── level_manager.py    # Loads levels from files or built-in maps
+├── game_constants.py   # Game constants, colors, image loading
+├── levels/             # (optional) level map .txt files
+└── img/                # Sprites and UI images
+```
 
 ## 🕹 Controls
 
 | Key                   | Action        |
 |-----------------------|---------------|
-| `A` / `←`             | Move left     |
-| `D` / `→`             | Move right    |
-| `Space` / `W` / `↑`   | Jump          |
-| `Esc`                 | Pause         |
+| `A` / `←`             |   Move left   |
+| `D` / `→`             |   Move right  |
+| `Space` / `W` / `↑`   |     Jump      |
+| `Esc`                 |     Pause     |
 
 ## 🚀 Installation & Running
 
