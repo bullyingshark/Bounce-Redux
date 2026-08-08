@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os
 from game_constants import *
 from level_manager import LevelManager
 from button import Button
@@ -15,7 +16,6 @@ clock = pygame.time.Clock()
 
 # Создаем менеджер уровней
 level_manager = LevelManager()
-
 
 # Главное меню
 def main_menu():
@@ -105,6 +105,7 @@ def level_select_menu():
         back_img = pygame.image.load("img/menu_button_back@2x.png")
         next_img = pygame.image.load("img/menu_button_next@2x.png")
         prev_img = pygame.image.load("img/menu_button_prev@2x.png")
+        bg_image = pygame.image.load("img/lselect_level@2x.png")
     except pygame.error as e:
         print(f"Error loading level select menu images: {e}")
         back_img = None
@@ -113,7 +114,7 @@ def level_select_menu():
 
     # Создаем кнопки с изображениями или текстом
     if back_img:
-        back_button = Button(50, SCREEN_HEIGHT - 70, image=back_img)
+        back_button = Button(50, SCREEN_HEIGHT - 90, image=back_img)
     else:
         back_button = Button(50, SCREEN_HEIGHT - 70, width=150, height=50, text="BACK")
 
@@ -163,11 +164,13 @@ def level_select_menu():
         for i in range(start_idx, end_idx):
             row = (i - start_idx) // 2
             col = (i - start_idx) % 2
-            x = col * 320 + 100
+            x = col * 320 + 320
             y = row * 180 + 120
-            preview = level_manager.get_level_preview(i)
             level_name = level_manager.get_level_name(i)
-            level_buttons.append((Button(x, y, width=250, height=150, text=level_name), i))
+
+            # Создаем кнопку с фоновым изображением и текстом
+            button = Button(x, y, width=250, height=150, text=level_name, background_image=bg_image)
+            level_buttons.append((button, i))
 
         # Проверяем клики на кнопках уровней
         for button, level_idx in level_buttons:
