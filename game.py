@@ -17,26 +17,28 @@ class Game:
 
         # Load pause menu button images
         try:
-            self.resume_img = pygame.image.load(
-                "img/dialog_pause_button_resume@2x.png")
-            self.restart_img = pygame.image.load(
-                "img/dialog_pause_button_restart@2x.png")
-            self.menu_img = pygame.image.load(
-                "img/dialog_pause_button_menu@2x.png")
+            self.resume_img = pygame.image.load("img/dialog_pause_button_resume@2x.png")
+            self.restart_img = pygame.image.load("img/dialog_pause_button_restart@2x.png")
+            self.menu_img = pygame.image.load("img/dialog_pause_button_menu@2x.png")
+            self.pause_btn_img = pygame.image.load("img/gbar_pause@2x.png")
         except pygame.error:
             print("Could not load pause menu button images, using text buttons instead")
             self.resume_img = None
             self.restart_img = None
             self.menu_img = None
+            self.pause_btn_img = None
+
+        # Create pause button
+        if self.pause_btn_img:
+            self.pause_button = Button(SCREEN_WIDTH - 100, 0, image=self.pause_btn_img)
+        else:
+            self.pause_button = Button(SCREEN_WIDTH - 110, 20, width=100, height=40, text="PAUSE")
 
         # Load level complete menu button images
         try:
-            self.next_lvl_img = pygame.image.load(
-                "img/game_dialog_complete_button_next@2x.png")
-            self.restart_img = pygame.image.load(
-                "img/dialog_pause_button_restart@2x.png")
-            self.menu_img = pygame.image.load(
-                "img/dialog_pause_button_menu@2x.png")
+            self.next_lvl_img = pygame.image.load("img/game_dialog_complete_button_next@2x.png")
+            self.restart_img = pygame.image.load("img/dialog_pause_button_restart@2x.png")
+            self.menu_img = pygame.image.load("img/dialog_pause_button_menu@2x.png")
         except pygame.error:
             print("Could not load level complete button images, using text buttons instead")
             self.resume_img = None
@@ -47,10 +49,8 @@ class Game:
 
         # Load level failed menu button images
         try:
-            self.retry_img = pygame.image.load(
-                "img/game_dialog_failed_button_retry@2x.png")
-            self.menu_img = pygame.image.load(
-                "img/dialog_pause_button_menu@2x.png")
+            self.retry_img = pygame.image.load("img/game_dialog_failed_button_retry@2x.png")
+            self.menu_img = pygame.image.load("img/dialog_pause_button_menu@2x.png")
         except pygame.error:
             print("Could not load pause menu button images, using text buttons instead")
             self.retry_img = None
@@ -146,6 +146,11 @@ class Game:
                     if event.button == 1:
                         mouse_click = True
 
+            # Проверка нажатия на кнопку паузы
+            self.pause_button.check_hover(mouse_pos)
+            if self.pause_button.is_clicked(mouse_pos, mouse_click):
+                game_paused = True
+
             # Обработка паузы
             if game_paused:
                 result = self._handle_pause(pause_buttons, mouse_pos, mouse_click, level_index)
@@ -221,9 +226,11 @@ class Game:
                 level_index
             )
 
+            # Отрисовка кнопки паузы (поверх игрового интерфейса)
+            self.pause_button.draw(self.screen)
+
             pygame.display.flip()
             self.clock.tick(FPS)
-
 
     def _handle_pause(self, pause_buttons, mouse_pos, mouse_click, level_index):
         # Обработка кнопок паузы
@@ -242,10 +249,10 @@ class Game:
         self.screen.fill(MENU_BG)
 
         # Создаем панель меню паузы
-        #menu_panel = pygame.Surface((400, 400), pygame.SRCALPHA)
-        #menu_panel.fill((200, 200, 255, 220))
-        #pygame.draw.rect(menu_panel, (100, 100, 200), menu_panel.get_rect(), 4)
-        #self.screen.blit(menu_panel, (SCREEN_WIDTH // 2 - 200, 50))
+        # menu_panel = pygame.Surface((400, 400), pygame.SRCALPHA)
+        # menu_panel.fill((200, 200, 255, 220))
+        # pygame.draw.rect(menu_panel, (100, 100, 200), menu_panel.get_rect(), 4)
+        # self.screen.blit(menu_panel, (SCREEN_WIDTH // 2 - 200, 50))
 
         # Заголовок
         pause_text = self.pause_font.render("PAUSE", True, WHITE)
@@ -388,20 +395,33 @@ class Game:
         player.draw(self.screen, camera_x)
 
         # Отображение информации
-        score_text = self.font.render(f"Score: {score}", True, WHITE)
+        # Отображаем счет справа от кнопки паузы с пятью нулями вначале
+        score_text = self.font.render(f"{score:05d}", True, WHITE)
+        score_rect = score_text.get_rect()
+        score_rect.topright = (SCREEN_WIDTH - 120, 20)
+        self.screen.blit(score_text, score_rect)
+
+        # Отображение названия уровня
         level_text = self.font.render(f"Level: {self.level_manager.get_level_name(level_index)}", True, WHITE)
+        self.screen.blit(level_text, (560, 20))
 
-        self.screen.blit(score_text, (20, 20))
-        self.screen.blit(level_text, (20, 60))
+        # Отображение жизней с использованием иконки шарика и текста 'x3'
+        lives_text = self.font.render(f"X{player.lives}", True, WHITE)
+        # Масштабируем изображение шарика для отображения жизней
+        life_ball = pygame.transform.scale(heart_image, (30, 30))
+        self.screen.blit(life_ball, (40, 15))
+        self.screen.blit(lives_text, (75, 20))
 
-        # Отображение жизней
-        lives_text = self.font.render(f"Lives: ", True, WHITE)
-        self.screen.blit(lives_text, (20, 100))
+        # Отображение доступных монет на уровне
+        #coin_text = self.font.render(":", True, WHITE)
+        #self.screen.blit(coin_text, (120, 20))
 
-        # Отрисовка иконок жизней
-        for i in range(player.lives):
-            if heart_image:
-                self.screen.blit(heart_image, (100 + i * (TILE_SIZE + 5), 100))
-            else:
-                # Если нет иконки сердца, рисуем красные квадраты
-                pygame.draw.rect(self.screen, RED, (100 + i * (TILE_SIZE + 5), 100, TILE_SIZE, TILE_SIZE))
+        # Отображаем маленькие иконки монет, по одной за каждую монету на уровне
+        small_coin = pygame.transform.scale(coin_ui_image, (20, 30))
+        for i in range(len(coins)):
+            coin_status = i < len(collected_coins)  # True если монета собрана
+            # Если монета собрана, затемняем её
+            coin_alpha = 100 if coin_status else 255
+            coin_copy = small_coin.copy()
+            coin_copy.set_alpha(coin_alpha)
+            self.screen.blit(coin_copy, (200 + i * 25, 15))
