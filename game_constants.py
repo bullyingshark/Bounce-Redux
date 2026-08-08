@@ -8,9 +8,10 @@ TILE_SIZE = 56
 # Добавляем размеры для монет и врагов
 COIN_SIZE = int(TILE_SIZE * 1.2)
 ENEMY_S_WIDTH = int(TILE_SIZE * 0.6)
-ENEMY_S_HEIGHT = int(TILE_SIZE * 0.9)
+ENEMY_S_HEIGHT = int(TILE_SIZE * 1)
 ENEMY_M_WIDTH = int(TILE_SIZE * 1.3)
 ENEMY_M_HEIGHT = int(TILE_SIZE * 1.3)
+LIFE_BONUS_SIZE = int(TILE_SIZE * 0.8)  # Slightly smaller than tile size
 
 GRAVITY = 0.45
 JUMP_POWER = -13
@@ -68,9 +69,12 @@ background_image = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
 background_image.fill((174, 206, 240))
 
 static_enemy_image = load_image("img/thorn@2x.png", RED)
-moving_enemy_image = load_image("img/dyn_thorn@2x.png", GREEN)
+moving_enemy_image = load_image("img/dyn_thorn@2x.png", BLUE)
 heart_image = load_image("img/gbar_life@2x.png", RED)  # Изображение для отображения жизней UI
 coin_ui_image = load_image("img/gbar_ring@2x.png", RED)  # Изображение для отображения колец UI
+# Добавляем изображение для бонуса жизни
+life_bonus_image = load_image("img/life@2x.png", YELLOW)  # Используем красный цвет как заглушку
+
 
 # Масштабируем изображения если нужно
 ball_image = pygame.transform.scale(ball_image, (TILE_SIZE, TILE_SIZE))
@@ -80,3 +84,6 @@ static_enemy_image = pygame.transform.scale(static_enemy_image, (ENEMY_S_WIDTH, 
 moving_enemy_image = pygame.transform.scale(moving_enemy_image, (ENEMY_M_WIDTH, ENEMY_M_HEIGHT))
 if heart_image:
     heart_image = pygame.transform.scale(heart_image, (TILE_SIZE, TILE_SIZE))
+# Масштабируем изображение бонуса жизни
+if life_bonus_image:
+    life_bonus_image = pygame.transform.scale(life_bonus_image, (LIFE_BONUS_SIZE, LIFE_BONUS_SIZE))

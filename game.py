@@ -68,6 +68,7 @@ class Game:
         coins = []
         static_enemies = []
         moving_enemies = []
+        life_bonuses = []
         ball_pos = [SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2]  # Позиция по умолчанию
 
         for y, row in enumerate(level_map):
@@ -91,7 +92,12 @@ class Game:
                         enemy_pos[1],
                         ENEMY_MOVE_DISTANCE,
                         ENEMY_MOVE_SPEED,
-                        moving_enemy_image
+                        moving_enemy_image))
+                elif tile == 'L':  # 'L' for Life bonus
+                    # Center the life bonus within the tile
+                    life_x = x * TILE_SIZE + (TILE_SIZE - LIFE_BONUS_SIZE) // 2
+                    life_y = y * TILE_SIZE + (TILE_SIZE - LIFE_BONUS_SIZE) // 2
+                    life_bonuses.append(pygame.Rect(life_x, life_y, LIFE_BONUS_SIZE, LIFE_BONUS_SIZE
                     ))
 
         # Создаем игрока
@@ -101,6 +107,7 @@ class Game:
         camera_x = 0
         score = 0
         collected_coins = []
+        collected_life_bonuses = []
         level_completed = False
         game_over = False
 
@@ -210,6 +217,11 @@ class Game:
                     collected_coins.append(coin)
                     score += 10
 
+            for life_bonus in life_bonuses[:]:
+                if life_bonus not in collected_life_bonuses and player.collides_with(life_bonus):
+                    collected_life_bonuses.append(life_bonus)
+                    player.lives += 1  # Add an extra life to the player
+
             # Обновление положения камеры
             camera_x = self._update_camera(player, camera_x, platforms)
 
@@ -223,7 +235,9 @@ class Game:
                 moving_enemies,
                 camera_x,
                 score,
-                level_index
+                level_index,
+                life_bonuses,  # Add life_bonuses parameter
+                collected_life_bonuses  # Add collected_life_bonuses parameter
             )
 
             # Отрисовка кнопки паузы (поверх игрового интерфейса)
@@ -370,8 +384,9 @@ class Game:
 
         return camera_x
 
-    def _draw_game(self, player, platforms, coins, collected_coins, static_enemies, moving_enemies, camera_x, score,
-                   level_index):
+    def _draw_game(self, player, platforms, coins, collected_coins, static_enemies,
+                   moving_enemies, camera_x, score, level_index, life_bonuses=None,
+                   collected_life_bonuses=None):
         self.screen.blit(background_image, (0, 0))
 
         # Отрисовка платформ
@@ -390,6 +405,14 @@ class Game:
 
         for enemy in moving_enemies:
             enemy.draw(self.screen, camera_x)
+
+            # Add life bonus drawing
+        if life_bonuses:
+            for life_bonus in life_bonuses:
+                if (life_bonus not in collected_life_bonuses and
+                        life_bonus.right > camera_x and
+                        life_bonus.left < camera_x + SCREEN_WIDTH):
+                    self.screen.blit(life_bonus_image, (life_bonus.x - camera_x, life_bonus.y))
 
         # Отрисовка персонажа
         player.draw(self.screen, camera_x)
