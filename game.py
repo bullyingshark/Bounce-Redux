@@ -29,6 +29,33 @@ class Game:
             self.restart_img = None
             self.menu_img = None
 
+        # Load level complete menu button images
+        try:
+            self.next_lvl_img = pygame.image.load(
+                "img/game_dialog_complete_button_next@2x.png")
+            self.restart_img = pygame.image.load(
+                "img/dialog_pause_button_restart@2x.png")
+            self.menu_img = pygame.image.load(
+                "img/dialog_pause_button_menu@2x.png")
+        except pygame.error:
+            print("Could not load level complete button images, using text buttons instead")
+            self.resume_img = None
+            self.restart_img = None
+            self.menu_img = None
+
+        self.level_complete = False  # Добавляем флаг завершения уровня
+
+        # Load level failed menu button images
+        try:
+            self.retry_img = pygame.image.load(
+                "img/game_dialog_failed_button_retry@2x.png")
+            self.menu_img = pygame.image.load(
+                "img/dialog_pause_button_menu@2x.png")
+        except pygame.error:
+            print("Could not load pause menu button images, using text buttons instead")
+            self.retry_img = None
+            self.menu_img = None
+
     def run(self, level_index):
         # Загружаем выбранный уровень
         level_map = self.level_manager.load_level(level_index)
@@ -121,9 +148,14 @@ class Game:
 
             # Обработка паузы
             if game_paused:
-                if self._handle_pause(pause_buttons, mouse_pos, mouse_click, level_index):
-                    return
-                continue
+                result = self._handle_pause(pause_buttons, mouse_pos, mouse_click, level_index)
+                if result == "continue":
+                    game_paused = False  # Снимаем игру с паузы
+                    continue
+                elif result == "quit":
+                    return  # Возвращаемся в меню
+                else:
+                    continue  # Остаемся в паузе
 
             # Обработка конца игры
             if game_over:
@@ -192,23 +224,19 @@ class Game:
             pygame.display.flip()
             self.clock.tick(FPS)
 
+
     def _handle_pause(self, pause_buttons, mouse_pos, mouse_click, level_index):
         # Обработка кнопок паузы
         for i, button in enumerate(pause_buttons):
             button.check_hover(mouse_pos)
             if button.is_clicked(mouse_pos, mouse_click):
                 if i == 0:  # Continue
-                    return False
+                    return "continue"  # Возвращаем строку, чтобы снять игру с паузы
                 elif i == 1:  # Restart
                     self.run(level_index)
-                    return True
+                    return "quit"  # Возвращаем строку, чтобы выйти из текущего цикла
                 elif i == 2:  # Menu
-                    return True
-
-        # Затемняем экран
-        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 128))
-        self.screen.blit(overlay, (0, 0))
+                    return "quit"  # Возвращаем строку, чтобы выйти в меню
 
         # Заливаем экран цветом MENU_BG
         self.screen.fill(MENU_BG)
@@ -220,7 +248,7 @@ class Game:
         #self.screen.blit(menu_panel, (SCREEN_WIDTH // 2 - 200, 50))
 
         # Заголовок
-        pause_text = self.pause_font.render("PAUSE", True, BLACK)
+        pause_text = self.pause_font.render("PAUSE", True, WHITE)
         pause_rect = pause_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
         self.screen.blit(pause_text, pause_rect)
 
@@ -230,7 +258,7 @@ class Game:
 
         pygame.display.flip()
         self.clock.tick(FPS)
-        return False
+        return None  # Возвращаем None, чтобы остаться в режиме паузы
 
     def _handle_game_over(self, game_over_buttons, mouse_pos, mouse_click, level_index):
         # Обработка кнопок конца игры
@@ -249,8 +277,26 @@ class Game:
         game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
         self.screen.blit(game_over_text, game_over_rect)
 
-        for button in game_over_buttons:
-            button.draw(self.screen)
+        # Создаем кнопки с изображениями, если они загружены, иначе используем текстовые
+        if self.retry_img and self.menu_img:
+            retry_button = Button(SCREEN_WIDTH // 2 - 180, 200, image=self.retry_img)
+            menu_button = Button(SCREEN_WIDTH // 2 - 180, 300, image=self.menu_img)
+        else:
+            retry_button = Button(SCREEN_WIDTH // 2 - 100, 320, width=200, height=50, text="RETRY")
+            menu_button = Button(SCREEN_WIDTH // 2 - 100, 390, width=200, height=50, text="MENU")
+
+        retry_button.check_hover(mouse_pos)
+        menu_button.check_hover(mouse_pos)
+
+        if retry_button.is_clicked(mouse_pos, mouse_click):
+            self.run(level_index)  # Перезапуск текущего уровня
+            return True
+
+        if menu_button.is_clicked(mouse_pos, mouse_click):
+            return True  # Возврат в меню
+
+        retry_button.draw(self.screen)
+        menu_button.draw(self.screen)
 
         pygame.display.flip()
         self.clock.tick(FPS)
@@ -267,10 +313,18 @@ class Game:
         score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, 180))
         self.screen.blit(score_text, score_rect)
 
-        next_button = Button(SCREEN_WIDTH // 2 - 100, 250, width=200, height=50, text="NEXT LEVEL")
-        menu_button = Button(SCREEN_WIDTH // 2 - 100, 330, width=200, height=50, text="MENU")
+        # Создаем кнопки с изображениями, если они загружены, иначе используем текстовые
+        if self.next_lvl_img and self.restart_img and self.menu_img:
+            next_button = Button(SCREEN_WIDTH // 2 - 180, 220, image=self.next_lvl_img)
+            restart_button = Button(SCREEN_WIDTH // 2 - 180, 320, image=self.restart_img)
+            menu_button = Button(SCREEN_WIDTH // 2 - 180, 420, image=self.menu_img)
+        else:
+            next_button = Button(SCREEN_WIDTH // 2 - 100, 250, width=200, height=50, text="NEXT LEVEL")
+            restart_button = Button(SCREEN_WIDTH // 2 - 100, 320, width=200, height=50, text="RESTART")
+            menu_button = Button(SCREEN_WIDTH // 2 - 100, 390, width=200, height=50, text="MENU")
 
         next_button.check_hover(mouse_pos)
+        restart_button.check_hover(mouse_pos)
         menu_button.check_hover(mouse_pos)
 
         if next_button.is_clicked(mouse_pos, mouse_click):
@@ -280,10 +334,15 @@ class Game:
             else:
                 return True  # Вернуться в меню, если это был последний уровень
 
-        if menu_button.is_clicked(mouse_pos, mouse_click):
+        if restart_button.is_clicked(mouse_pos, mouse_click):
+            self.run(level_index)  # Перезапуск текущего уровня
             return True
 
+        if menu_button.is_clicked(mouse_pos, mouse_click):
+            return True  # Возврат в меню
+
         next_button.draw(self.screen)
+        restart_button.draw(self.screen)
         menu_button.draw(self.screen)
 
         pygame.display.flip()
@@ -329,14 +388,14 @@ class Game:
         player.draw(self.screen, camera_x)
 
         # Отображение информации
-        score_text = self.font.render(f"Score: {score}", True, BLACK)
-        level_text = self.font.render(f"Level: {self.level_manager.get_level_name(level_index)}", True, BLACK)
+        score_text = self.font.render(f"Score: {score}", True, WHITE)
+        level_text = self.font.render(f"Level: {self.level_manager.get_level_name(level_index)}", True, WHITE)
 
         self.screen.blit(score_text, (20, 20))
         self.screen.blit(level_text, (20, 60))
 
         # Отображение жизней
-        lives_text = self.font.render(f"Lives: ", True, BLACK)
+        lives_text = self.font.render(f"Lives: ", True, WHITE)
         self.screen.blit(lives_text, (20, 100))
 
         # Отрисовка иконок жизней
