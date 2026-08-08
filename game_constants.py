@@ -69,7 +69,8 @@ background_image.fill((174, 206, 240))
 
 static_enemy_image = load_image("img/thorn@2x.png", RED)
 moving_enemy_image = load_image("img/dyn_thorn@2x.png", GREEN)
-heart_image = load_image("img/gbar_life@2x.png", RED)  # Изображение для отображения жизней
+heart_image = load_image("img/gbar_life@2x.png", RED)  # Изображение для отображения жизней UI
+coin_ui_image = load_image("img/gbar_ring@2x.png", RED)  # Изображение для отображения колец UI
 
 # Масштабируем изображения если нужно
 ball_image = pygame.transform.scale(ball_image, (TILE_SIZE, TILE_SIZE))

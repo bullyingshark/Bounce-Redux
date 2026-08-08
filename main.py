@@ -23,14 +23,14 @@ def main_menu():
 
     # Загрузка изображений
     try:
-        play_img = pygame.image.load(
-            "img/menu_button_play@2x.png")
-        left_image = pygame.image.load(
-            "img/menu_logo@2x.png")
+        play_img = pygame.image.load("img/menu_button_play@2x.png")
+        levels_img = pygame.image.load("img/menu_button_levels@2x.png")
+        left_image = pygame.image.load("img/menu_logo@2x.png")
     except pygame.error as e:
         print(f"Error loading menu images: {e}")
         # Fallback to text buttons if images can't be loaded
         play_img = None
+        levels_img = None
         left_image = None
 
     # Создание кнопок
@@ -38,6 +38,12 @@ def main_menu():
         play_button = Button(SCREEN_WIDTH // 2 + 150, 100, image=play_img)
     else:
         play_button = Button(SCREEN_WIDTH // 2 + 50, 100, width=200, height=50, text="PLAY")
+
+    # Добавляем кнопку Levels
+    if levels_img:
+        levels_button = Button(SCREEN_WIDTH // 2 + 150, 200, image=levels_img)
+    else:
+        levels_button = Button(SCREEN_WIDTH // 2 + 50, 200, width=200, height=50, text="LEVELS")
 
     # Получаем Rect для левого изображения и позиционируем его
     if left_image:
@@ -57,13 +63,19 @@ def main_menu():
 
         # Проверка наведения курсора
         play_button.check_hover(mouse_pos)
+        levels_button.check_hover(mouse_pos)
 
-        # Проверка клика
+        # Проверка клика на кнопку Play
         if play_button.is_clicked(mouse_pos, mouse_click):
             # Запускаем первый уровень
             if level_manager.get_level_count() > 0:
                 game = Game(screen, clock, level_manager)
                 game.run(0)
+
+        # Проверка клика на кнопку Levels
+        if levels_button.is_clicked(mouse_pos, mouse_click):
+            # Переходим в меню выбора уровня
+            level_select_menu()
 
         # Отрисовка
         screen.fill(MENU_BG)
@@ -72,6 +84,7 @@ def main_menu():
             screen.blit(left_image, left_image_rect)  # Отображение левого изображения
 
         play_button.draw(screen)
+        levels_button.draw(screen)  # Отрисовываем кнопку Levels
 
         pygame.display.flip()
         clock.tick(FPS)
@@ -87,9 +100,32 @@ def level_select_menu():
     title_text = title_font.render("SELECT LEVEL", True, WHITE)
     title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 50))
 
-    back_button = Button(50, SCREEN_HEIGHT - 70, width=150, height=50, text="BACK")
-    next_page_button = Button(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 70, width=150, height=50, text="NEXT PAGE")
-    prev_page_button = Button(SCREEN_WIDTH - 370, SCREEN_HEIGHT - 70, width=150, height=50, text="PREV PAGE")
+    # Загрузка изображений для кнопок
+    try:
+        back_img = pygame.image.load("img/menu_button_back@2x.png")
+        next_img = pygame.image.load("img/menu_button_next@2x.png")
+        prev_img = pygame.image.load("img/menu_button_prev@2x.png")
+    except pygame.error as e:
+        print(f"Error loading level select menu images: {e}")
+        back_img = None
+        next_img = None
+        prev_img = None
+
+    # Создаем кнопки с изображениями или текстом
+    if back_img:
+        back_button = Button(50, SCREEN_HEIGHT - 70, image=back_img)
+    else:
+        back_button = Button(50, SCREEN_HEIGHT - 70, width=150, height=50, text="BACK")
+
+    if next_img:
+        next_page_button = Button(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 70, image=next_img)
+    else:
+        next_page_button = Button(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 70, width=150, height=50, text="NEXT PAGE")
+
+    if prev_img:
+        prev_page_button = Button(SCREEN_WIDTH - 370, SCREEN_HEIGHT - 70, image=prev_img)
+    else:
+        prev_page_button = Button(SCREEN_WIDTH - 370, SCREEN_HEIGHT - 70, width=150, height=50, text="PREV PAGE")
 
     while menu_running:
         mouse_pos = pygame.mouse.get_pos()
