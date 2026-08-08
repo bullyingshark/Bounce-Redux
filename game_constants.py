@@ -7,8 +7,10 @@ FPS = 60
 TILE_SIZE = 56
 # Добавляем размеры для монет и врагов
 COIN_SIZE = int(TILE_SIZE * 1.2)
-ENEMY_WIDTH = int(TILE_SIZE * 0.9)
-ENEMY_HEIGHT = int(TILE_SIZE * 1.1) 
+ENEMY_S_WIDTH = int(TILE_SIZE * 0.6)
+ENEMY_S_HEIGHT = int(TILE_SIZE * 0.9)
+ENEMY_M_WIDTH = int(TILE_SIZE * 1.3)
+ENEMY_M_HEIGHT = int(TILE_SIZE * 1.3)
 
 GRAVITY = 0.45
 JUMP_POWER = -13
@@ -73,7 +75,7 @@ heart_image = load_image("img/gbar_life@2x.png", RED)  # Изображение 
 ball_image = pygame.transform.scale(ball_image, (TILE_SIZE, TILE_SIZE))
 brick_image = pygame.transform.scale(brick_image, (TILE_SIZE, TILE_SIZE))
 coin_image = pygame.transform.scale(coin_image, (COIN_SIZE, COIN_SIZE))
-static_enemy_image = pygame.transform.scale(static_enemy_image, (ENEMY_WIDTH, ENEMY_HEIGHT))
-moving_enemy_image = pygame.transform.scale(moving_enemy_image, (ENEMY_WIDTH, ENEMY_HEIGHT))
+static_enemy_image = pygame.transform.scale(static_enemy_image, (ENEMY_S_WIDTH, ENEMY_S_HEIGHT))
+moving_enemy_image = pygame.transform.scale(moving_enemy_image, (ENEMY_M_WIDTH, ENEMY_M_HEIGHT))
 if heart_image:
     heart_image = pygame.transform.scale(heart_image, (TILE_SIZE, TILE_SIZE))

@@ -1,5 +1,5 @@
 import pygame
-from game_constants import TILE_SIZE, RED, GREEN, ENEMY_WIDTH, ENEMY_HEIGHT
+from game_constants import TILE_SIZE, RED, GREEN, ENEMY_S_WIDTH, ENEMY_S_HEIGHT, ENEMY_M_WIDTH, ENEMY_M_HEIGHT
 
 
 class Enemy:
@@ -7,42 +7,50 @@ class Enemy:
         self.pos = [x, y]
         self.enemy_type = enemy_type
 
+        # Set the dimensions based on enemy type
+        if enemy_type == "static":
+            self.width = ENEMY_S_WIDTH
+            self.height = ENEMY_S_HEIGHT
+        else:
+            self.width = ENEMY_M_WIDTH
+            self.height = ENEMY_M_HEIGHT
+
         # Создаем изображение врага, если оно не предоставлено
         if image:
             self.image = image
         else:
             # Статичный враг - красный квадрат, движущийся - зеленый
             color = RED if enemy_type == "static" else GREEN
-            self.image = pygame.Surface((ENEMY_WIDTH, ENEMY_HEIGHT))
+            self.image = pygame.Surface((self.width, self.height))
             self.image.fill(color)
 
             # Добавляем детали для различения врагов
             if enemy_type == "static":
                 # Рисуем X на статичном враге
-                pygame.draw.line(self.image, (0, 0, 0), (0, 0), (ENEMY_WIDTH, ENEMY_HEIGHT), 2)
-                pygame.draw.line(self.image, (0, 0, 0), (0, ENEMY_HEIGHT), (ENEMY_WIDTH, 0), 2)
+                pygame.draw.line(self.image, (0, 0, 0), (0, 0), (self.width, self.height), 2)
+                pygame.draw.line(self.image, (0, 0, 0), (0, self.height), (self.width, 0), 2)
             else:
                 # Рисуем стрелки на движущемся враге
-                pygame.draw.line(self.image, (0, 0, 0), (ENEMY_WIDTH // 2, 5), (ENEMY_WIDTH // 2, ENEMY_HEIGHT - 5), 2)
+                pygame.draw.line(self.image, (0, 0, 0), (self.width // 2, 5), (self.width // 2, self.height - 5), 2)
                 pygame.draw.polygon(self.image, (0, 0, 0),
-                                   [(ENEMY_WIDTH // 2 - 5, 10), (ENEMY_WIDTH // 2, 5), (ENEMY_WIDTH // 2 + 5, 10)])
+                                    [(self.width // 2 - 5, 10), (self.width // 2, 5), (self.width // 2 + 5, 10)])
                 pygame.draw.polygon(self.image, (0, 0, 0),
-                                   [(ENEMY_WIDTH // 2 - 5, ENEMY_HEIGHT - 10), (ENEMY_WIDTH // 2, ENEMY_HEIGHT - 5),
-                                    (ENEMY_WIDTH // 2 + 5, ENEMY_HEIGHT - 10)])
+                                    [(self.width // 2 - 5, self.height - 10), (self.width // 2, self.height - 5),
+                                     (self.width // 2 + 5, self.height - 10)])
 
     def get_rect(self):
         return pygame.Rect(
-            self.pos[0] - ENEMY_WIDTH // 2,
-            self.pos[1] - ENEMY_HEIGHT // 2,
-            ENEMY_WIDTH,
-            ENEMY_HEIGHT
+            self.pos[0] - self.width // 2,
+            self.pos[1] - self.height // 2,
+            self.width,
+            self.height
         )
 
     def draw(self, surface, camera_x):
         screen_x = self.pos[0] - camera_x
         # Отрисовываем, только если враг находится в пределах экрана
-        if 0 <= screen_x <= surface.get_width() + ENEMY_WIDTH:
-            surface.blit(self.image, (screen_x - ENEMY_WIDTH // 2, self.pos[1] - ENEMY_HEIGHT // 2))
+        if 0 <= screen_x <= surface.get_width() + self.width:
+            surface.blit(self.image, (screen_x - self.width // 2, self.pos[1] - self.height // 2))
 
 
 class MovingEnemy(Enemy):
