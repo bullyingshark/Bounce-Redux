@@ -210,11 +210,14 @@ class Game:
         overlay.fill((0, 0, 0, 128))
         self.screen.blit(overlay, (0, 0))
 
+        # Заливаем экран цветом MENU_BG
+        self.screen.fill(MENU_BG)
+
         # Создаем панель меню паузы
-        menu_panel = pygame.Surface((400, 400), pygame.SRCALPHA)
-        menu_panel.fill((200, 200, 255, 220))
-        pygame.draw.rect(menu_panel, (100, 100, 200), menu_panel.get_rect(), 4)
-        self.screen.blit(menu_panel, (SCREEN_WIDTH // 2 - 200, 50))
+        #menu_panel = pygame.Surface((400, 400), pygame.SRCALPHA)
+        #menu_panel.fill((200, 200, 255, 220))
+        #pygame.draw.rect(menu_panel, (100, 100, 200), menu_panel.get_rect(), 4)
+        #self.screen.blit(menu_panel, (SCREEN_WIDTH // 2 - 200, 50))
 
         # Заголовок
         pause_text = self.pause_font.render("PAUSE", True, BLACK)
@@ -241,8 +244,8 @@ class Game:
                     return True
 
         # Отрисовка экрана конца игры
-        self.screen.fill((0, 0, 0, 128), special_flags=pygame.BLEND_RGBA_MULT)
-        game_over_text = self.pause_font.render("GAME OVER", True, RED)
+        self.screen.fill((MENU_BG), special_flags=pygame.BLEND_RGBA_MULT)
+        game_over_text = self.pause_font.render("LEVEL FAILED!", True, RED)
         game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
         self.screen.blit(game_over_text, game_over_rect)
 
@@ -255,7 +258,7 @@ class Game:
 
     def _handle_level_complete(self, score, mouse_pos, mouse_click, level_index):
         # Показываем экран завершения уровня
-        self.screen.fill((0, 0, 0, 128), special_flags=pygame.BLEND_RGBA_MULT)
+        self.screen.fill(MENU_BG)
         complete_text = self.pause_font.render("LEVEL COMPLETED!", True, WHITE)
         complete_rect = complete_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
         self.screen.blit(complete_text, complete_rect)
