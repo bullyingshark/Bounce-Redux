@@ -72,20 +72,38 @@ class LevelManager:
                 ]
             },
             {
-                "name": "Level 3",
+                "name": "Level 3 - Vertical",
                 "map": [
                     "111111111111111111111111111111111111",
                     "1                                  1",
                     "1                                  1",
-                    "1  C     C    E C    C     C       1",
-                    "1 111   111   111   111   111      1",
-                    "1     M     M           M          1",
+                    "1  C     C      C    C     C       1",
+                    "1 111   111    111  111   111      1",
+                    "1                                  1",
                     "1                                 E1",
-                    "1   S            111           11111",
-                    "1  111    E               E        1",
+                    "1   S                         111111",
+                    "1  111                             1",
+                    "1          111111     1111         1",
+                    "1                                  1",
+                    "1            M          M          1",
+                    "1                                  1",
+                    "1           111        111         1",
+                    "1                                  1",
+                    "1      E                    E      1",
+                    "1     111                  111     1",
+                    "1                                  1",
+                    "1                     C            1",
+                    "1                    111           1",
+                    "1                                  1",
+                    "1                L                 1",
+                    "1                                  1",
+                    "1             111111111            1",
+                    "1                                  1",
+                    "1       P              P           1",
+                    "1      111            111          1",
                     "111111111111111111111111111111111111"
                 ]
-            }
+            },
         ]
 
         for level in default_levels:
@@ -113,6 +131,16 @@ class LevelManager:
 
             return level_map
         return None
+
+    def get_level_dimensions(self, index):
+        """Возвращает ширину и высоту уровня в пикселях"""
+        level_map = self.load_level(index)
+        if level_map:
+            from game_constants import TILE_SIZE
+            width = len(level_map[0]) * TILE_SIZE
+            height = len(level_map) * TILE_SIZE
+            return width, height
+        return 0, 0
 
     def get_level_count(self):
         return len(self.levels)

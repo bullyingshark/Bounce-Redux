@@ -46,27 +46,42 @@ class Enemy:
             self.height
         )
 
-    def draw(self, surface, camera_x):
+    def draw(self, surface, camera_x, camera_y=0):
         screen_x = self.pos[0] - camera_x
+        screen_y = self.pos[1] - camera_y
+
         # Отрисовываем, только если враг находится в пределах экрана
-        if 0 <= screen_x <= surface.get_width() + self.width:
-            surface.blit(self.image, (screen_x - self.width // 2, self.pos[1] - self.height // 2))
+        if (0 <= screen_x <= surface.get_width() + self.width and
+                0 <= screen_y <= surface.get_height() + self.height):
+            surface.blit(self.image, (screen_x - self.width // 2, screen_y - self.height // 2))
 
 
 class MovingEnemy(Enemy):
-    def __init__(self, x, y, move_distance, speed=1, image=None):
+    def __init__(self, x, y, move_distance, speed=1, image=None, vertical=True):
         super().__init__(x, y, image, "moving")
+        self.initial_x = x
         self.initial_y = y
-        self.move_distance = move_distance  # Максимальное расстояние движения вверх/вниз
+        self.move_distance = move_distance  # Максимальное расстояние движения вверх/вниз или влево/вправо
         self.speed = speed  # Скорость движения
-        self.direction = 1  # 1 - вниз, -1 - вверх
+        self.direction = 1  # 1 - вниз/вправо, -1 - вверх/влево
+        self.vertical = vertical  # По умолчанию движение по вертикали
 
     def update(self):
-        # Обновляем позицию
-        self.pos[1] += self.speed * self.direction
+        if self.vertical:
+            # Обновляем позицию по вертикали
+            self.pos[1] += self.speed * self.direction
 
-        # Меняем направление при достижении крайних точек
-        if self.pos[1] >= self.initial_y + self.move_distance:
-            self.direction = -1
-        elif self.pos[1] <= self.initial_y - self.move_distance:
-            self.direction = 1
+            # Меняем направление при достижении крайних точек
+            if self.pos[1] >= self.initial_y + self.move_distance:
+                self.direction = -1
+            elif self.pos[1] <= self.initial_y - self.move_distance:
+                self.direction = 1
+        else:
+            # Обновляем позицию по горизонтали
+            self.pos[0] += self.speed * self.direction
+
+            # Меняем направление при достижении крайних точек
+            if self.pos[0] >= self.initial_x + self.move_distance:
+                self.direction = -1
+            elif self.pos[0] <= self.initial_x - self.move_distance:
+                self.direction = 1
