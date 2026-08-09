@@ -4,6 +4,7 @@ from game_constants import *
 from player import Player
 from button import Button
 from enemy import Enemy, MovingEnemy
+from checkpoint import Checkpoint
 from game_constants import TILE_SIZE, COIN_SIZE
 
 
@@ -56,6 +57,15 @@ class Game:
             self.retry_img = None
             self.menu_img = None
 
+        # Load checkpoint images
+        try:
+            self.inactive_checkpoint_img = pygame.image.load("img/checkpoint@2x.png")
+            self.active_checkpoint_img = pygame.image.load("img/checkpoint_catched@2x.png")
+        except pygame.error:
+            print("Could not load checkpoint images, using default rendering")
+            self.inactive_checkpoint_img = None
+            self.active_checkpoint_img = None
+
     def run(self, level_index):
         # Загружаем выбранный уровень
         level_map = self.level_manager.load_level(level_index)
@@ -69,6 +79,7 @@ class Game:
         static_enemies = []
         moving_enemies = []
         life_bonuses = []
+        checkpoints = []  # Новый список для контрольных точек
         ball_pos = [SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2]  # Позиция по умолчанию
 
         for y, row in enumerate(level_map):
@@ -97,7 +108,15 @@ class Game:
                     # Center the life bonus within the tile
                     life_x = x * TILE_SIZE + (TILE_SIZE - LIFE_BONUS_SIZE) // 2
                     life_y = y * TILE_SIZE + (TILE_SIZE - LIFE_BONUS_SIZE) // 2
-                    life_bonuses.append(pygame.Rect(life_x, life_y, LIFE_BONUS_SIZE, LIFE_BONUS_SIZE
+                    life_bonuses.append(pygame.Rect(life_x, life_y, LIFE_BONUS_SIZE, LIFE_BONUS_SIZE))
+                elif tile == 'P':  # 'P' for Checkpoint
+                    # Создаем контрольную точку
+                    checkpoint_pos = [x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE]
+                    checkpoints.append(Checkpoint(
+                        checkpoint_pos[0],
+                        checkpoint_pos[1],
+                        self.inactive_checkpoint_img,
+                        self.active_checkpoint_img
                     ))
 
         # Создаем игрока
@@ -205,11 +224,26 @@ class Game:
             for enemy in static_enemies + moving_enemies:
                 if player.collides_with(enemy.get_rect()):
                     if player.take_damage():
-                        # Возвращаем игрока на начальную позицию
-                        player.reset_position()
+                        # Если есть активная контрольная точка, возвращаем к ней
+                        active_checkpoint = next((cp for cp in checkpoints if cp.is_active), None)
+                        if active_checkpoint:
+                            player.reset_to_checkpoint(active_checkpoint.pos)
+                        else:
+                            # Возвращаем игрока на начальную позицию
+                            player.reset_position()
                         # Проверка, если игрок умер
                         if player.is_dead():
                             game_over = True
+
+            # Проверка столкновений с контрольными точками
+            for checkpoint in checkpoints:
+                if player.collides_with(checkpoint.get_rect()) and not checkpoint.is_active:
+                    checkpoint.activate()
+                    # Сбрасываем неактивными все остальные контрольные точки
+                    # - раскомментировать если нужно только одну активную контрольную точку
+                    # for other_cp in checkpoints:
+                    #     if other_cp != checkpoint:
+                    #         other_cp.is_active = False
 
             # Сбор монет
             for coin in coins[:]:
@@ -236,8 +270,9 @@ class Game:
                 camera_x,
                 score,
                 level_index,
-                life_bonuses,  # Add life_bonuses parameter
-                collected_life_bonuses  # Add collected_life_bonuses parameter
+                life_bonuses,
+                collected_life_bonuses,
+                checkpoints  # Добавляем чекпоинты в отрисовку
             )
 
             # Отрисовка кнопки паузы (поверх игрового интерфейса)
@@ -386,8 +421,13 @@ class Game:
 
     def _draw_game(self, player, platforms, coins, collected_coins, static_enemies,
                    moving_enemies, camera_x, score, level_index, life_bonuses=None,
-                   collected_life_bonuses=None):
+                   collected_life_bonuses=None, checkpoints=None):
         self.screen.blit(background_image, (0, 0))
+
+        # Отрисовка чекпоинтов
+        if checkpoints:
+            for checkpoint in checkpoints:
+                checkpoint.draw(self.screen, camera_x)
 
         # Отрисовка платформ
         for platform in platforms:
@@ -436,8 +476,8 @@ class Game:
         self.screen.blit(lives_text, (75, 20))
 
         # Отображение доступных монет на уровне
-        #coin_text = self.font.render(":", True, WHITE)
-        #self.screen.blit(coin_text, (120, 20))
+        # coin_text = self.font.render(":", True, WHITE)
+        # self.screen.blit(coin_text, (120, 20))
 
         # Отображаем маленькие иконки монет, по одной за каждую монету на уровне
         small_coin = pygame.transform.scale(coin_ui_image, (20, 30))

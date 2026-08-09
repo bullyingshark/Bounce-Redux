@@ -6,6 +6,7 @@ class Player:
     def __init__(self, x, y, image):
         self.pos = [x, y]
         self.initial_pos = [x, y]
+        self.checkpoint_pos = None
         self.vel = [0, 0]
         self.image = image
         self.on_ground = False
@@ -98,5 +99,11 @@ class Player:
         return self.lives <= 0
 
     def reset_position(self):
+        """Сбрасывает позицию на начальную точку"""
         self.pos = self.initial_pos.copy()
+        self.vel = [0, 0]
+
+    def reset_to_checkpoint(self, checkpoint_pos):
+        """Сбрасывает позицию на активную контрольную точку"""
+        self.pos = checkpoint_pos.copy()
         self.vel = [0, 0]
