@@ -15,22 +15,22 @@ class Enemy:
             self.width = ENEMY_M_WIDTH
             self.height = ENEMY_M_HEIGHT
 
-        # Создаем изображение врага, если оно не предоставлено
+        # Create an image of the enemy if one has not been provided
         if image:
             self.image = image
         else:
-            # Статичный враг - красный квадрат, движущийся - зеленый
+            # Stationary enemy - red square; that moves - green
             color = RED if enemy_type == "static" else GREEN
             self.image = pygame.Surface((self.width, self.height))
             self.image.fill(color)
 
-            # Добавляем детали для различения врагов
+            # Add details to help distinguish between enemies
             if enemy_type == "static":
-                # Рисуем X на статичном враге
+                # Draw an X on a stationary enemy
                 pygame.draw.line(self.image, (0, 0, 0), (0, 0), (self.width, self.height), 2)
                 pygame.draw.line(self.image, (0, 0, 0), (0, self.height), (self.width, 0), 2)
             else:
-                # Рисуем стрелки на движущемся враге
+                # Drawing arrows on a moving enemy
                 pygame.draw.line(self.image, (0, 0, 0), (self.width // 2, 5), (self.width // 2, self.height - 5), 2)
                 pygame.draw.polygon(self.image, (0, 0, 0),
                                     [(self.width // 2 - 5, 10), (self.width // 2, 5), (self.width // 2 + 5, 10)])
@@ -50,7 +50,7 @@ class Enemy:
         screen_x = self.pos[0] - camera_x
         screen_y = self.pos[1] - camera_y
 
-        # Отрисовываем, только если враг находится в пределах экрана
+        # Only render if the enemy is within the screen boundaries
         if (0 <= screen_x <= surface.get_width() + self.width and
                 0 <= screen_y <= surface.get_height() + self.height):
             surface.blit(self.image, (screen_x - self.width // 2, screen_y - self.height // 2))
@@ -61,26 +61,26 @@ class MovingEnemy(Enemy):
         super().__init__(x, y, image, "moving")
         self.initial_x = x
         self.initial_y = y
-        self.move_distance = move_distance  # Максимальное расстояние движения вверх/вниз или влево/вправо
-        self.speed = speed  # Скорость движения
-        self.direction = 1  # 1 - вниз/вправо, -1 - вверх/влево
-        self.vertical = vertical  # По умолчанию движение по вертикали
+        self.move_distance = move_distance  # Max move distance up/down or left/right
+        self.speed = speed  # Speed
+        self.direction = 1  # 1 - down/right, -1 - up/left
+        self.vertical = vertical  # Vertical movement by default
 
     def update(self):
         if self.vertical:
-            # Обновляем позицию по вертикали
+            # Updating the position vertically
             self.pos[1] += self.speed * self.direction
 
-            # Меняем направление при достижении крайних точек
+            # Change direction when we reach the end points
             if self.pos[1] >= self.initial_y + self.move_distance:
                 self.direction = -1
             elif self.pos[1] <= self.initial_y - self.move_distance:
                 self.direction = 1
         else:
-            # Обновляем позицию по горизонтали
+            # Updating the position horizontally
             self.pos[0] += self.speed * self.direction
 
-            # Меняем направление при достижении крайних точек
+            # Change direction when reaching the end points
             if self.pos[0] >= self.initial_x + self.move_distance:
                 self.direction = -1
             elif self.pos[0] <= self.initial_x - self.move_distance:
