@@ -9,7 +9,7 @@ class LevelManager:
         self.load_levels()
 
     def load_levels(self):
-        # Сначала ищем файлы уровней в папке levels
+        # Look for the level files in the ‘levels’ folder
         level_dir = "levels"
         try:
             if os.path.exists(level_dir):
@@ -17,7 +17,7 @@ class LevelManager:
                     if file.endswith(".txt"):
                         level_path = os.path.join(level_dir, file)
                         level_name = file.split(".")[0]
-                        # Проверяем, есть ли картинка для превью уровня
+                        # Check if there is an image for the level preview
                         preview_path = os.path.join(level_dir, f"{level_name}_preview.png")
                         preview = None
                         if os.path.exists(preview_path):
@@ -25,7 +25,7 @@ class LevelManager:
                                 preview = pygame.image.load(preview_path)
                                 preview = pygame.transform.scale(preview, (200, 150))
                             except:
-                                print(f"Не удалось загрузить превью для уровня {level_name}")
+                                print(f"Failed to load the preview for the level {level_name}")
 
                         self.levels.append({
                             "name": level_name,
@@ -33,9 +33,9 @@ class LevelManager:
                             "preview": preview
                         })
         except Exception as e:
-            print(f"Ошибка при загрузке уровней: {e}")
+            print(f"Error when loading levels: {e}")
 
-        # Если нет файлов уровней, создаем тестовые уровни
+        # If there are no level files, we create test levels
         if not self.levels:
             self.create_default_levels()
 
@@ -118,13 +118,13 @@ class LevelManager:
             level = self.levels[index]
             self.current_level = index
 
-            # Загружаем карту уровня
+            # Loading the level map
             if "path" in level:
                 try:
                     with open(level["path"], "r") as f:
                         level_map = [line.strip() for line in f.readlines()]
                 except:
-                    print(f"Ошибка при чтении файла уровня {level['name']}")
+                    print(f"Error when reading a level file {level['name']}")
                     level_map = None
             else:
                 level_map = level.get("map", None)
@@ -133,7 +133,7 @@ class LevelManager:
         return None
 
     def get_level_dimensions(self, index):
-        """Возвращает ширину и высоту уровня в пикселях"""
+        """Returns the width and height of the layer in pixels"""
         level_map = self.load_level(index)
         if level_map:
             from game_constants import TILE_SIZE

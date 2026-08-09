@@ -6,22 +6,22 @@ from level_manager import LevelManager
 from button import Button
 from game import Game
 
-# Инициализация Pygame
+# Init Pygame
 pygame.init()
 
-# Окно
+# Window
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Bounce")
 clock = pygame.time.Clock()
 
-# Создаем менеджер уровней
+# Creating a level manager
 level_manager = LevelManager()
 
-# Главное меню
+# Main menu
 def main_menu():
     menu_running = True
 
-    # Загрузка изображений
+    # Uploading images
     try:
         play_img = pygame.image.load("img/menu_button_play@2x.png")
         levels_img = pygame.image.load("img/menu_button_levels@2x.png")
@@ -33,19 +33,19 @@ def main_menu():
         levels_img = None
         left_image = None
 
-    # Создание кнопок
+    # Creating buttons
     if play_img:
         play_button = Button(SCREEN_WIDTH // 2 + 150, 100, image=play_img)
     else:
         play_button = Button(SCREEN_WIDTH // 2 + 50, 100, width=200, height=50, text="PLAY")
 
-    # Добавляем кнопку Levels
+    # Add button Levels
     if levels_img:
         levels_button = Button(SCREEN_WIDTH // 2 + 150, 200, image=levels_img)
     else:
         levels_button = Button(SCREEN_WIDTH // 2 + 50, 200, width=200, height=50, text="LEVELS")
 
-    # Получаем Rect для левого изображения и позиционируем его
+    # Obtain a Rect for the left-hand image and position it
     if left_image:
         left_image_rect = left_image.get_rect(topright=(SCREEN_WIDTH // 2 - 150, 200))
 
@@ -61,36 +61,36 @@ def main_menu():
                 if event.button == 1:
                     mouse_click = True
 
-        # Проверка наведения курсора
+        # Cursor alignment check
         play_button.check_hover(mouse_pos)
         levels_button.check_hover(mouse_pos)
 
-        # Проверка клика на кнопку Play
+        # Checking the click on the Play button
         if play_button.is_clicked(mouse_pos, mouse_click):
-            # Запускаем первый уровень
+            # Start the first level
             if level_manager.get_level_count() > 0:
                 game = Game(screen, clock, level_manager)
                 game.run(0)
 
-        # Проверка клика на кнопку Levels
+        # Testing the “Levels” button
         if levels_button.is_clicked(mouse_pos, mouse_click):
-            # Переходим в меню выбора уровня
+            # Level selection menu
             level_select_menu()
 
-        # Отрисовка
+        # Drawing
         screen.fill(MENU_BG)
 
         if left_image:
-            screen.blit(left_image, left_image_rect)  # Отображение левого изображения
+            screen.blit(left_image, left_image_rect)  # Draw the image on the left
 
         play_button.draw(screen)
-        levels_button.draw(screen)  # Отрисовываем кнопку Levels
+        levels_button.draw(screen)  # Draw the ‘Levels’ button
 
         pygame.display.flip()
         clock.tick(FPS)
 
 
-# Меню выбора уровней
+# Level selection menu
 def level_select_menu():
     menu_running = True
     levels_per_page = 4
@@ -100,7 +100,7 @@ def level_select_menu():
     title_text = title_font.render("SELECT LEVEL", True, WHITE)
     title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 50))
 
-    # Загрузка изображений для кнопок
+    # Uploading images for buttons
     try:
         back_img = pygame.image.load("img/menu_button_back@2x.png")
         next_img = pygame.image.load("img/menu_button_next@2x.png")
@@ -112,7 +112,7 @@ def level_select_menu():
         next_img = None
         prev_img = None
 
-    # Создаем кнопки с изображениями или текстом
+    # Creating buttons with images or text
     if back_img:
         back_button = Button(50, SCREEN_HEIGHT - 90, image=back_img)
     else:
@@ -140,7 +140,7 @@ def level_select_menu():
                 if event.button == 1:
                     mouse_click = True
 
-        # Обработка кнопок
+        # Button handling
         back_button.check_hover(mouse_pos)
         next_page_button.check_hover(mouse_pos)
         prev_page_button.check_hover(mouse_pos)
@@ -156,7 +156,7 @@ def level_select_menu():
         if prev_page_button.is_clicked(mouse_pos, mouse_click) and current_page > 0:
             current_page -= 1
 
-        # Создаем кнопки для уровней на текущей странице
+        # Creating buttons for the levels on the current page
         level_buttons = []
         start_idx = current_page * levels_per_page
         end_idx = min(start_idx + levels_per_page, level_manager.get_level_count())
@@ -168,23 +168,23 @@ def level_select_menu():
             y = row * 180 + 120
             level_name = level_manager.get_level_name(i)
 
-            # Создаем кнопку с фоновым изображением и текстом
+            # Creating a button with a background image and text
             button = Button(x, y, width=250, height=150, text=level_name, background_image=bg_image)
             level_buttons.append((button, i))
 
-        # Проверяем клики на кнопках уровней
+        # Checking clicks on the level buttons
         for button, level_idx in level_buttons:
             button.check_hover(mouse_pos)
             if button.is_clicked(mouse_pos, mouse_click):
                 game = Game(screen, clock, level_manager)
                 game.run(level_idx)
-                # После завершения уровня возвращаемся в меню выбора уровней
+                # When you’ve completed the level, return to the level selection menu
 
-        # Отрисовка
+        # Drawing
         screen.fill(MENU_BG)
         screen.blit(title_text, title_rect)
 
-        # Отрисовка кнопок уровней
+        # Drawing Levels button
         for button, _ in level_buttons:
             button.draw(screen)
 
@@ -196,7 +196,7 @@ def level_select_menu():
         if current_page > 0:
             prev_page_button.draw(screen)
 
-        # Отображаем номер текущей страницы
+        # Displaying the current page number
         page_font = pygame.font.SysFont(None, 24)
         page_text = page_font.render(f"Page {current_page + 1}/{max_pages}", True, WHITE)
         screen.blit(page_text, (SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT - 50))
@@ -205,6 +205,6 @@ def level_select_menu():
         clock.tick(FPS)
 
 
-# Запуск игры
+# Launch the game
 if __name__ == "__main__":
     main_menu()

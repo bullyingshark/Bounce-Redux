@@ -68,26 +68,26 @@ class Game:
             self.active_checkpoint_img = None
 
     def run(self, level_index):
-        # Загружаем выбранный уровень
+        # Set the selected level
         level_map = self.level_manager.load_level(level_index)
         if not level_map:
-            print(f"Не удалось загрузить уровень с индексом {level_index}")
+            print(f"Failed to load level with index {level_index}")
             return
 
-        # Создаем игровые объекты на основе карты уровня
+        # Creating game objects based on the level map
         platforms = []
         coins = []
         static_enemies = []
         moving_enemies = []
         life_bonuses = []
         checkpoints = []
-        ball_pos = [SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2]  # Позиция по умолчанию
+        ball_pos = [SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2]  # Default position
 
         # Calculate level dimensions
         level_width = len(level_map[0]) * TILE_SIZE
         level_height = len(level_map) * TILE_SIZE
 
-        # Создаем динамический фон на основе размеров уровня
+        # Creating a dynamic background based on the level dimensions
         self.create_dynamic_background(level_width, level_height)
 
         for y, row in enumerate(level_map):
@@ -95,28 +95,28 @@ class Game:
                 if tile == '1':
                     platforms.append(pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
                 elif tile == 'C':
-                    # Создаем обычную монету
+                    # Make a normal coin
                     coin_x = x * TILE_SIZE + TILE_SIZE // 2
                     coin_y = y * TILE_SIZE + TILE_SIZE // 2
                     coins.append(Coin(coin_x, coin_y, image=coin_image))
-                elif tile == 'B':  # Большая монета
+                elif tile == 'B':  # Big coin
                     coin_x = x * TILE_SIZE + TILE_SIZE // 2
                     coin_y = y * TILE_SIZE + TILE_SIZE // 2
                     coins.append(Coin(coin_x, coin_y, width=80, height=80, image=coin_image))
-                elif tile == 's':  # Маленькая монета
+                elif tile == 's':  # Small coin
                     coin_x = x * TILE_SIZE + TILE_SIZE // 2
                     coin_y = y * TILE_SIZE + TILE_SIZE // 2
                     coins.append(Coin(coin_x, coin_y, width=30, height=30, image=coin_image))
-                elif tile == 'O':  # Овальная монета
+                elif tile == 'O':  # Oval coin
                     coin_x = x * TILE_SIZE + TILE_SIZE // 2
                     coin_y = y * TILE_SIZE + TILE_SIZE // 2
                     coins.append(Coin(coin_x, coin_y, width=80, height=40, image=coin_image))
                 elif tile == 'S':
                     ball_pos = [x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2]
-                elif tile == 'E':  # Статичный враг
+                elif tile == 'E':  # Static enemy
                     enemy_pos = [x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2]
                     static_enemies.append(Enemy(enemy_pos[0], enemy_pos[1], static_enemy_image))
-                elif tile == 'M':  # Движущийся враг
+                elif tile == 'M':  # Moving enemy
                     enemy_pos = [x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2]
                     moving_enemies.append(MovingEnemy(
                         enemy_pos[0],
@@ -130,7 +130,7 @@ class Game:
                     life_y = y * TILE_SIZE + (TILE_SIZE - LIFE_BONUS_SIZE) // 2
                     life_bonuses.append(pygame.Rect(life_x, life_y, LIFE_BONUS_SIZE, LIFE_BONUS_SIZE))
                 elif tile == 'P':  # 'P' for Checkpoint
-                    # Создаем контрольную точку
+                    # Creating a control point
                     checkpoint_pos = [x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE]
                     checkpoints.append(Checkpoint(
                         checkpoint_pos[0],
@@ -139,10 +139,10 @@ class Game:
                         self.active_checkpoint_img
                     ))
 
-        # Создаем игрока
+        # Creating a character (the ball)
         player = Player(ball_pos[0], ball_pos[1], ball_image)
 
-        # Переменные игровой логики
+        # Game logic variables
         camera_x = 0
         camera_y = 0
         score = 0
@@ -151,10 +151,10 @@ class Game:
         level_completed = False
         game_over = False
 
-        # Инициализируем камеру, чтобы она была сосредоточена на игроке
+        # Initialise the camera so that it is centred on the player
         camera_x, camera_y = self._initialize_camera(player, level_width, level_height)
 
-        # Создаем кнопки паузы с изображениями, если они загружены, иначе используем текстовые
+        # Create pause buttons with images if they have been loaded; otherwise, we use text buttons
         if self.resume_img and self.restart_img and self.menu_img:
             pause_buttons = [
                 Button(SCREEN_WIDTH // 2 - 180, 150, image=self.resume_img),
@@ -168,13 +168,13 @@ class Game:
                 Button(SCREEN_WIDTH // 2 - 100, 360, width=200, height=50, text="MENU")
             ]
 
-        # Кнопки игры окончена
+        # 'Game Over' buttons
         game_over_buttons = [
             Button(SCREEN_WIDTH // 2 - 100, 280, width=200, height=50, text="RESTART"),
             Button(SCREEN_WIDTH // 2 - 100, 360, width=200, height=50, text="MENU")
         ]
 
-        # Игровой цикл
+        # Game cycle
         game_running = True
         game_paused = False
 
@@ -196,12 +196,12 @@ class Game:
                     if event.button == 1:
                         mouse_click = True
 
-            # Проверка нажатия на кнопку паузы
+            # Checking if the pause button has been pressed
             self.pause_button.check_hover(mouse_pos)
             if self.pause_button.is_clicked(mouse_pos, mouse_click):
                 game_paused = True
 
-            # Обработка паузы
+            # Pause handling
             if game_paused:
                 result = self._handle_pause(pause_buttons, mouse_pos, mouse_click, level_index)
                 if result == "continue":
@@ -212,13 +212,13 @@ class Game:
                 else:
                     continue
 
-            # Обработка конца игры
+            # End Game handling
             if game_over:
                 if self._handle_game_over(game_over_buttons, mouse_pos, mouse_click, level_index):
                     return
                 continue
 
-            # Проверка на завершение уровня (все монеты собраны)
+            # Check to see if the level is complete (all coins collected)
             if collected_coins == len(coins) and not level_completed:
                 level_completed = True
 
@@ -227,73 +227,74 @@ class Game:
                     return
                 continue
 
-            # Игровая логика
+            # Game logic
             keys = pygame.key.get_pressed()
             if keys[pygame.K_a] or keys[pygame.K_LEFT]:
                 player.move(-1)
             if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
                 player.move(1)
-            # Обработка непрерывного прыжка
+            # Handling a continuous jump
             if keys[pygame.K_SPACE] or keys[pygame.K_w] or keys[pygame.K_UP]:
                 player.jump()
 
-            # Обновляем игрока
+            # Updating a character
             player.update(platforms)
 
-            # Проверяем, не упал ли игрок за пределы уровня
+            # Check if the player has fallen off the edge of the level
             if self._check_player_out_of_bounds(player, level_width, level_height):
                 if player.take_damage():
-                    # Если есть активная контрольная точка, возвращаем к ней
+                    # If there is an active checkpoint, return to it
                     active_checkpoint = next((cp for cp in checkpoints if cp.is_active), None)
                     if active_checkpoint:
                         player.reset_to_checkpoint(active_checkpoint.pos)
                     else:
-                        # Возвращаем игрока на начальную позицию
+                        # Return the player to their starting position
                         player.reset_position()
-                    # Проверка, если игрок умер
+                    # Checking if a player has died
                     if player.is_dead():
                         game_over = True
 
-            # Обновляем движущихся врагов
+            # Updating moving enemies
             for enemy in moving_enemies:
                 enemy.update()
 
-            # Проверка столкновений с врагами
+            # Checking for encounters with enemies
             for enemy in static_enemies + moving_enemies:
                 if player.collides_with(enemy.get_rect()):
                     if player.take_damage():
-                        # Если есть активная контрольная точка, возвращаем к ней
+                        # If there is an active checkpoint, return to it
                         active_checkpoint = next((cp for cp in checkpoints if cp.is_active), None)
                         if active_checkpoint:
                             player.reset_to_checkpoint(active_checkpoint.pos)
                         else:
-                            # Возвращаем игрока на начальную позицию
+                            # Return the player to their starting position
                             player.reset_position()
-                        # Проверка, если игрок умер
+                        # Checking is the player has died
                         if player.is_dead():
                             game_over = True
 
-            # Проверка столкновений с контрольными точками
+            # Checking for touch with control points
             for checkpoint in checkpoints:
                 if player.collides_with(checkpoint.get_rect()) and not checkpoint.is_active:
                     checkpoint.activate()
 
-            # Сбор монет
+            # Coin collecting
             for coin in coins:
                 if not coin.is_collected() and player.collides_with(coin.get_rect()):
                     coin.collect()
                     collected_coins += 1
                     score += 10
 
+            # Additional Lifes collecting
             for life_bonus in life_bonuses[:]:
                 if life_bonus not in collected_life_bonuses and player.collides_with(life_bonus):
                     collected_life_bonuses.append(life_bonus)
                     player.lives += 1
 
-            # Обновление положения камеры по вертикали и горизонтали
+            # Adjusting the camera position vertically and horizontally
             camera_x, camera_y = self._update_camera(player, camera_x, camera_y, level_width, level_height)
 
-            # Отрисовка
+            # Drawing
             self._draw_game(
                 player,
                 platforms,
@@ -310,49 +311,49 @@ class Game:
                 checkpoints
             )
 
-            # Отрисовка кнопки паузы (поверх игрового интерфейса)
+            # Displaying the pause button (over the game interface)
             self.pause_button.draw(self.screen)
 
             pygame.display.flip()
             self.clock.tick(FPS)
 
     def create_dynamic_background(self, level_width, level_height):
-        """Создает динамический фон на основе размеров уровня"""
-        # Создаем фон, который покрывает весь уровень
+        """Creates a dynamic background based on the dimensions of the layer"""
+        # Create a background that covers the entire layer
         bg_width = max(level_width, SCREEN_WIDTH)
         bg_height = max(level_height, SCREEN_HEIGHT)
 
         self.dynamic_background = pygame.Surface((bg_width, bg_height))
 
-        # Создаем градиент от светло-голубого к более темному для глубины
+        # Create a gradient from light blue to a darker shade to add depth
         for y in range(bg_height):
-            # Вычисляем цвет на основе позиции y
+            # Calculating the colour based on the Y-coordinate
             progress = y / bg_height if bg_height > 0 else 0
             blue_value = max(100, 240 - int(progress * 140))
             green_value = max(150, 206 - int(progress * 56))
             self.dynamic_background.fill((174, green_value, blue_value), pygame.Rect(0, y, bg_width, 1))
 
     def _initialize_camera(self, player, level_width, level_height):
-        """Инициализирует камеру, центрируя её на игроке"""
+        """Initialises the camera, centring it on the player"""
         camera_x = player.pos[0] - SCREEN_WIDTH // 2
         camera_y = player.pos[1] - SCREEN_HEIGHT // 2
 
-        # Ограничиваем камеру границами уровня
+        # Restrict the camera to the boundaries of the level
         camera_x = max(0, min(camera_x, level_width - SCREEN_WIDTH))
         camera_y = max(0, min(camera_y, level_height - SCREEN_HEIGHT))
 
         return camera_x, camera_y
 
     def _check_player_out_of_bounds(self, player, level_width, level_height):
-        """Проверяет, не вышел ли игрок за границы уровня"""
-        margin = TILE_SIZE  # Небольшой отступ перед срабатыванием
+        """Checks whether the player has gone beyond the boundaries of the level"""
+        margin = TILE_SIZE  # A brief digression before we get to the point
         return (player.pos[0] < -margin or
                 player.pos[0] > level_width + margin or
                 player.pos[1] < -margin or
                 player.pos[1] > level_height + margin)
 
     def _handle_pause(self, pause_buttons, mouse_pos, mouse_click, level_index):
-        # Обработка кнопок паузы
+        # Handling pause buttons
         for i, button in enumerate(pause_buttons):
             button.check_hover(mouse_pos)
             if button.is_clicked(mouse_pos, mouse_click):
@@ -364,15 +365,15 @@ class Game:
                 elif i == 2:  # Menu
                     return "quit"
 
-        # Заливаем экран цветом MENU_BG
+        # Fill the screen with the colour MENU_BG
         self.screen.fill(MENU_BG)
 
-        # Заголовок
+        # Title
         pause_text = self.pause_font.render("PAUSE", True, WHITE)
         pause_rect = pause_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
         self.screen.blit(pause_text, pause_rect)
 
-        # Отрисовка кнопок
+        # Button display
         for button in pause_buttons:
             button.draw(self.screen)
 
@@ -381,7 +382,7 @@ class Game:
         return None
 
     def _handle_game_over(self, game_over_buttons, mouse_pos, mouse_click, level_index):
-        # Обработка кнопок конца игры
+        # Handling “End Game” buttons
         for i, button in enumerate(game_over_buttons):
             button.check_hover(mouse_pos)
             if button.is_clicked(mouse_pos, mouse_click):
@@ -391,13 +392,13 @@ class Game:
                 elif i == 1:  # Menu
                     return True
 
-        # Отрисовка экрана конца игры
+        # End-game screen display
         self.screen.fill((MENU_BG), special_flags=pygame.BLEND_RGBA_MULT)
         game_over_text = self.pause_font.render("LEVEL FAILED!", True, RED)
         game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
         self.screen.blit(game_over_text, game_over_rect)
 
-        # Создаем кнопки с изображениями, если они загружены, иначе используем текстовые
+        # Create buttons with images if they have been downloaded; otherwise, we use text buttons
         if self.retry_img and self.menu_img:
             retry_button = Button(SCREEN_WIDTH // 2 - 180, 200, image=self.retry_img)
             menu_button = Button(SCREEN_WIDTH // 2 - 180, 300, image=self.menu_img)
@@ -423,7 +424,7 @@ class Game:
         return False
 
     def _handle_level_complete(self, score, mouse_pos, mouse_click, level_index):
-        # Показываем экран завершения уровня
+        # Showing the level completion screen
         self.screen.fill(MENU_BG)
         complete_text = self.pause_font.render("LEVEL COMPLETED!", True, WHITE)
         complete_rect = complete_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
@@ -433,7 +434,7 @@ class Game:
         score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, 180))
         self.screen.blit(score_text, score_rect)
 
-        # Создаем кнопки с изображениями, если они загружены, иначе используем текстовые
+        # Create buttons with images if they have been uploaded; otherwise, we use text buttons
         if self.next_lvl_img and self.restart_img and self.menu_img:
             next_button = Button(SCREEN_WIDTH // 2 - 180, 220, image=self.next_lvl_img)
             restart_button = Button(SCREEN_WIDTH // 2 - 180, 320, image=self.restart_img)
@@ -470,17 +471,17 @@ class Game:
         return False
 
     def _update_camera(self, player, camera_x, camera_y, level_width, level_height):
-        """Обновляет позицию камеры для следования за игроком"""
-        # Плавное следование за игроком по горизонтали
+        """Updates the camera position to follow the player"""
+        # Smooth horizontal tracking of the player
         target_camera_x = player.pos[0] - SCREEN_WIDTH // 2
         target_camera_y = player.pos[1] - SCREEN_HEIGHT // 2
 
-        # Используем более плавное движение камеры
+        # Using a smoother camera movement
         camera_smooth_factor = 0.1
         camera_x += (target_camera_x - camera_x) * camera_smooth_factor
         camera_y += (target_camera_y - camera_y) * camera_smooth_factor
 
-        # Ограничиваем камеру границами уровня
+        # Restrict the camera to the boundaries of the level
         camera_x = max(0, min(camera_x, max(0, level_width - SCREEN_WIDTH)))
         camera_y = max(0, min(camera_y, max(0, level_height - SCREEN_HEIGHT)))
 
@@ -490,30 +491,30 @@ class Game:
                    moving_enemies, camera_x, camera_y, score, level_index, life_bonuses=None,
                    collected_life_bonuses=None, checkpoints=None):
 
-        # Отрисовка динамического фона
+        # Rendering a dynamic background
         if hasattr(self, 'dynamic_background'):
-            # Вычисляем какую часть фона нужно отрисовать
+            # Calculate how much of the background needs to be painted
             bg_rect = pygame.Rect(camera_x, camera_y, SCREEN_WIDTH, SCREEN_HEIGHT)
             self.screen.blit(self.dynamic_background, (0, 0), bg_rect)
         else:
-            # Fallback на статичный фон
+            # Fallback to a static background
             self.screen.blit(background_image, (0, 0))
 
-        # Отрисовка чекпоинтов
+        # Rendering checkpoints
         if checkpoints:
             for checkpoint in checkpoints:
                 checkpoint.draw(self.screen, camera_x, camera_y)
 
-        # Отрисовка платформ с улучшенной оптимизацией
+        # Displaying platforms with improved optimisation
         visible_platforms = [p for p in platforms if self._is_rect_visible(p, camera_x, camera_y)]
         for platform in visible_platforms:
             self.screen.blit(brick_image, (platform.x - camera_x, platform.y - camera_y))
 
-        # Отрисовка монет с оптимизацией
+        # Coin rendering with optimisation
         for coin in coins:
             coin.draw(self.screen, camera_x, camera_y)
 
-        # Отрисовка врагов
+        # Depicting enemies
         for enemy in static_enemies + moving_enemies:
             enemy.draw(self.screen, camera_x, camera_y)
 
@@ -524,28 +525,28 @@ class Game:
                         self._is_rect_visible(life_bonus, camera_x, camera_y)):
                     self.screen.blit(life_bonus_image, (life_bonus.x - camera_x, life_bonus.y - camera_y))
 
-        # Отрисовка персонажа
+        # Drawing a character
         player.draw(self.screen, camera_x, camera_y)
 
-        # Отображение информации
-        # Отображаем счет справа от кнопки паузы с пятью нулями вначале
+        # Display the information
+        # Display the count to the right of the pause button, with five zeros at the start
         score_text = self.font.render(f"{score:05d}", True, WHITE)
         score_rect = score_text.get_rect()
         score_rect.topright = (SCREEN_WIDTH - 120, 20)
         self.screen.blit(score_text, score_rect)
 
-        # Отображение названия уровня
+        # Displaying the level name
         level_text = self.font.render(f"Level: {self.level_manager.get_level_name(level_index)}", True, WHITE)
         self.screen.blit(level_text, (560, 20))
 
-        # Отображение жизней с использованием иконки шарика и текста 'x3'
+        # Displaying lives using a ball icon and the text 'x3'
         lives_text = self.font.render(f"X{player.lives}", True, WHITE)
-        # Масштабируем изображение шарика для отображения жизней
+        # Scale the image of the ball to show the lives
         life_ball = pygame.transform.scale(heart_image, (30, 30))
         self.screen.blit(life_ball, (40, 15))
         self.screen.blit(lives_text, (75, 20))
 
-        # Отображаем маленькие иконки монет, по одной за каждую монету на уровне
+        # Display small coin icons, one for each coin at the level
         small_coin = pygame.transform.scale(coin_ui_image, (20, 30))
         for i in range(len(coins)):
             coin_status = i < collected_coins
@@ -555,6 +556,6 @@ class Game:
             self.screen.blit(coin_copy, (200 + i * 25, 15))
 
     def _is_rect_visible(self, rect, camera_x, camera_y):
-        """Проверяет, виден ли объект на экране"""
+        """Checks if the object is visible on the screen"""
         return (rect.right > camera_x and rect.left < camera_x + SCREEN_WIDTH and
                 rect.bottom > camera_y and rect.top < camera_y + SCREEN_HEIGHT)

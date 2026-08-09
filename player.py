@@ -17,12 +17,12 @@ class Player:
         self.flashing = False
 
     def update(self, platforms):
-        # Применяем гравитацию
+        # Gravity
         self.vel[1] += GRAVITY
 
-        # Перемещение по оси X
+        # Movement along the X-axis
         self.pos[0] += self.vel[0]
-        self.vel[0] = 0  # Сброс движения по X после перемещения
+        self.vel[0] = 0  # Resetting the X-axis position after movement
         player_rect = self.get_rect()
         for platform in platforms:
             if player_rect.colliderect(platform):
@@ -32,7 +32,7 @@ class Player:
                     self.pos[0] = platform.right + TILE_SIZE // 2
                 player_rect = self.get_rect()
 
-        # Перемещение по оси Y
+        # Movement along the Y-axis
         self.pos[1] += self.vel[1]
         player_rect = self.get_rect()
         self.on_ground = False
@@ -47,7 +47,7 @@ class Player:
                     self.vel[1] = 0
                 player_rect = self.get_rect()
 
-        # Обновление состояния неуязвимости
+        # Vulnerability status update
         if self.invulnerable:
             self.invulnerable_timer -= 1
             self.flash_timer -= 1
@@ -100,11 +100,11 @@ class Player:
         return self.lives <= 0
 
     def reset_position(self):
-        """Сбрасывает позицию на начальную точку"""
+        """Resets the position to the starting point"""
         self.pos = self.initial_pos.copy()
         self.vel = [0, 0]
 
     def reset_to_checkpoint(self, checkpoint_pos):
-        """Сбрасывает позицию на активную контрольную точку"""
+        """Sends the position to the active checkpoint"""
         self.pos = checkpoint_pos.copy()
         self.vel = [0, 0]
