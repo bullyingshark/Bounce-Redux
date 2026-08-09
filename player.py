@@ -76,13 +76,14 @@ class Player:
             TILE_SIZE
         )
 
-    def draw(self, surface, camera_x):
+    def draw(self, surface, camera_x, camera_y=0):
         screen_x = self.pos[0] - camera_x
+        screen_y = self.pos[1] - camera_y
 
         if self.invulnerable and self.flashing:
             return
 
-        surface.blit(self.image, (screen_x - TILE_SIZE // 2, self.pos[1] - TILE_SIZE // 2))
+        surface.blit(self.image, (screen_x - TILE_SIZE // 2, screen_y - TILE_SIZE // 2))
 
     def collides_with(self, rect):
         return self.get_rect().colliderect(rect)

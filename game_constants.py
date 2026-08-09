@@ -6,7 +6,9 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 560
 FPS = 60
 TILE_SIZE = 56
 # Добавляем размеры для монет и врагов
-COIN_SIZE = int(TILE_SIZE * 1.2)
+# Заменяем COIN_SIZE на отдельные параметры ширины и высоты
+COIN_WIDTH = int(TILE_SIZE * 0.5)
+COIN_HEIGHT = int(TILE_SIZE * 1.3)
 ENEMY_S_WIDTH = int(TILE_SIZE * 0.6)
 ENEMY_S_HEIGHT = int(TILE_SIZE * 1)
 ENEMY_M_WIDTH = int(TILE_SIZE * 1.3)
@@ -17,7 +19,9 @@ CHECKPOINT_SIZE = int(TILE_SIZE * 0.9)
 GRAVITY = 0.45
 JUMP_POWER = -13
 MOVE_SPEED = 5
-SCROLL_THRESHOLD = 300
+# Обновляем пороговые значения для прокрутки по горизонтали и вертикали
+SCROLL_THRESHOLD_X = 300
+SCROLL_THRESHOLD_Y = 200
 ENEMY_MOVE_SPEED = 2
 ENEMY_MOVE_DISTANCE = 100
 
@@ -65,22 +69,27 @@ ball_image = load_image("img/ball_small@2x.png", RED)
 brick_image = load_image("img/ui_ground_block@2x.png", (200, 100, 50))
 coin_image = load_image("img/ring_small@2x.png", YELLOW)
 
-# Создаем фоновое изображение просто как поверхность с цветом
-background_image = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-background_image.fill((174, 206, 240))
+# Создаем фоновое изображение
+# Используем более высокий размер для поддержки вертикальной прокрутки
+background_image = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT * 2))
+# Создаем градиент от светло-голубого к более темному для глубины
+for y in range(SCREEN_HEIGHT * 2):
+    # Вычисляем цвет на основе позиции y
+    blue_value = max(100, 240 - int(y / (SCREEN_HEIGHT * 2) * 140))
+    background_image.fill((174, 206, blue_value), pygame.Rect(0, y, SCREEN_WIDTH, 1))
 
 static_enemy_image = load_image("img/thorn@2x.png", RED)
 moving_enemy_image = load_image("img/dyn_thorn@2x.png", BLUE)
 heart_image = load_image("img/gbar_life@2x.png", RED)  # Изображение для отображения жизней UI
 coin_ui_image = load_image("img/gbar_ring@2x.png", RED)  # Изображение для отображения колец UI
 # Добавляем изображение для бонуса жизни
-life_bonus_image = load_image("img/life@2x.png", YELLOW)  # Используем красный цвет как заглушку
+life_bonus_image = load_image("img/life@2x.png", GREEN)  # Используем красный цвет как заглушку
 
 
 # Масштабируем изображения если нужно
 ball_image = pygame.transform.scale(ball_image, (TILE_SIZE, TILE_SIZE))
 brick_image = pygame.transform.scale(brick_image, (TILE_SIZE, TILE_SIZE))
-coin_image = pygame.transform.scale(coin_image, (COIN_SIZE, COIN_SIZE))
+coin_image = pygame.transform.scale(coin_image, (COIN_WIDTH, COIN_HEIGHT))
 static_enemy_image = pygame.transform.scale(static_enemy_image, (ENEMY_S_WIDTH, ENEMY_S_HEIGHT))
 moving_enemy_image = pygame.transform.scale(moving_enemy_image, (ENEMY_M_WIDTH, ENEMY_M_HEIGHT))
 if heart_image:
