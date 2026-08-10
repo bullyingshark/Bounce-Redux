@@ -2,6 +2,14 @@
 
 A 2D platformer built with Python and **Pygame** — a spiritual remake of the classic **Nokia Bounce** game, reimagined for PC. Guide a bouncing ball through obstacle-filled levels, collect rings, dodge enemies, and reach checkpoints to complete each stage.
 
+## Game screenshots
+<img width="1279" height="592" alt="image" src="https://github.com/user-attachments/assets/4589df00-2ea3-4b32-af8b-1232e6c9091f" />
+<img width="1278" height="582" alt="image" src="https://github.com/user-attachments/assets/889637a3-2ebc-4516-bfe6-761dca83c943" />
+<img width="1279" height="591" alt="image" src="https://github.com/user-attachments/assets/1a981854-089b-4e67-8622-66fbeac4fd7b" />
+
+<img width="1279" height="585" alt="image" src="https://github.com/user-attachments/assets/99baa0d6-53c7-4741-91b1-053cb5643db4" />
+               'Freeze-frame' from v0.1
+
 ## 🎮 Features
 
 - Smooth jump and gravity physics reminiscent of the original Nokia classic
